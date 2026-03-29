@@ -15,11 +15,12 @@ namespace PR14
         /// Регистрирует нового пользователя.
         /// Возвращает true, если регистрация успешна; иначе false.
         /// </summary>
-        public bool Register(string login, string password, string confirmPassword)
+        public bool Register(string login, string email, string password, string confirmPassword)
         {
             if (string.IsNullOrWhiteSpace(login) ||
                 string.IsNullOrWhiteSpace(password) ||
-                string.IsNullOrWhiteSpace(confirmPassword))
+                string.IsNullOrWhiteSpace(confirmPassword) ||
+                string.IsNullOrWhiteSpace(email))
                 return false;
 
             if (password != confirmPassword)
@@ -28,15 +29,24 @@ namespace PR14
             if (password.Length < 4)
                 return false;
 
+            var emailRegex = new System.Text.RegularExpressions.Regex(
+    @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+            if (!emailRegex.IsMatch(email))
+                return false;
+
             var db = Manager.GetContext();
 
             if (db.Users.Any(u => u.Login == login))
                 return false;
 
+            if (db.Users.Any(u => u.Email == email))
+                return false;
+
             var newUser = new Users
             {
                 Login = login,
-                Password = password
+                Password = password,
+                Email = email
             };
 
             db.Users.Add(newUser);
@@ -48,6 +58,7 @@ namespace PR14
         {
             bool success = Register(
                 TxtLogin.Text,
+                TxtEmail.Text,
                 TxtPassword.Password,
                 TxtPasswordConfirm.Password);
 
@@ -58,7 +69,7 @@ namespace PR14
             }
             else
             {
-                MessageBox.Show("Ошибка регистрации. Проверьте введённые данные.");
+                MessageBox.Show("Ошибка регистрации. Проверьте корректность введённых данных.");
             }
         }
 

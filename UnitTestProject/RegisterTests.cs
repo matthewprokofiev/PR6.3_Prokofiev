@@ -9,10 +9,10 @@ namespace UnitTestProject
     {
         // Позитивные тесты регистрации
         [TestMethod]
-        [DataRow("newuser_test1", "pass1234", "pass1234")]
-        [DataRow("newuser_test2", "abcd", "abcd")]
-        [DataRow("newuser_test3", "qwerty123", "qwerty123")]
-        public void RegisterTestSuccess(string login, string password, string confirm)
+        [DataRow("newuser_test1", "test1@ya.ru", "pass1234", "pass1234")]
+        [DataRow("newuser_test2", "test2@ya.ru", "abcd", "abcd")]
+        [DataRow("newuser_test3", "test3@ya.ru", "qwerty123", "qwerty123")]
+        public void RegisterTestSuccess(string login, string email, string password, string confirm)
         {
             var page = new RegisterPage();
 
@@ -24,24 +24,25 @@ namespace UnitTestProject
                 db.SaveChanges();
             }
 
-            bool result = page.Register(login, password, confirm);
+            bool result = page.Register(login, email, password, confirm);
             Assert.IsTrue(result,
                 $"Позитивный тест провален: регистрация '{login}' не прошла.");
         }
 
         // Негативные тесты регистрации
         [TestMethod]
-        [DataRow("", "", "")]
-        [DataRow("", "password", "password")]
-        [DataRow("somelogin", "", "")]
-        [DataRow("newuser_1", "password1", "password2")]
-        [DataRow("newuser_2", "ab", "ab")]
-        [DataRow("   ", "   ", "   ")]
-        [DataRow("user1", "newpassword", "newpassword")]
-        public void RegisterTestFail(string login, string password, string confirm)
+        [DataRow("", "", "", "")]
+        [DataRow("", "test@mail.ru", "password", "password")]
+        [DataRow("somelogin", "", "", "")]
+        [DataRow("newuser_1", "invalid-email", "password1", "password2")]
+        [DataRow("newuser_2", "user@domain.com", "ab", "ab")]
+        [DataRow("   ", "   ", "   ", "   ")]
+        [DataRow("user1", "correct@cinema.ru", "newpassword", "newpassword")]
+        [DataRow("fakeadmin", "admin@cinema.ru", "newpassword", "newpassword")] 
+        public void RegisterTestFail(string login, string email, string password, string confirm)
         {
             var page = new RegisterPage();
-            bool result = page.Register(login, password, confirm);
+            bool result = page.Register(login, email, password, confirm);
             Assert.IsFalse(result,
                 $"Негативный тест провален: система зарегистрировала '{login}' когда не должна была.");
         }
